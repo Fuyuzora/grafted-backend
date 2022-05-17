@@ -3,7 +3,7 @@ FROM public.ecr.aws/lambda/python:3.8
 # Copy function code
 COPY app.py ${LAMBDA_TASK_ROOT}
 COPY trtr.py ${LAMBDA_TASK_ROOT}
-
+COPY nltk_data/ ${LAMBDA_TASK_ROOT}
 # Install the function's dependencies using file requirements.txt
 # from your project folder.
 

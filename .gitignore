@@ -2,3 +2,5 @@ data/*
 grafted-nlp/__pycache__
 grafted-nlp/results.txt
 grafted-nlp/run
+grafted-nlp/deploy
+grafted-nlp/nltk_data/

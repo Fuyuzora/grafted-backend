@@ -73,6 +73,8 @@ def extract_key_phrases(text, top_n=0, tags=['NN', 'JJ', 'NNP']):
     word_tokens = nltk.word_tokenize(text)
 
     # assign POS tags to the words in the text
+    if os.getcwd not in nltk.data.path:
+        nltk.data.path.append(os.getcwd())
     tagged = nltk.pos_tag(word_tokens)
     textlist = [x[0] for x in tagged]
 
