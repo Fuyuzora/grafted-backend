@@ -1,14 +1,13 @@
 import json
 from trtr import *
-from parser import *
 
 setup_environment()
 
-def lambda_hander(event, context):
+def handler(event, context):
     resp = {}
-    if event["keywords"]:
+    if 'keywords' in event.keys():
         resp['keywords'] = extract_key_phrases(event["keywords"])
-    if event["summary"]:
+    if 'summary' in event.keys():
         resp["summary"] = extract_sentences(event["summary"])
     return {
         "statusCode": 200,
