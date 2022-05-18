@@ -20,7 +20,7 @@ def setup_environment():
     print('Completed resource downloads.')
 
 
-def _filter_for_tags(tagged, tags=['NN', 'JJ', 'NNP']):
+def _filter_for_tags(tagged, tags=['NN', 'NNP']):
     """Apply syntactic filters based on POS tags."""
     return [item for item in tagged if item[1] in tags]
 
@@ -73,7 +73,7 @@ def extract_key_phrases(text, top_n=0, tags=['NN', 'JJ', 'NNP']):
     word_tokens = nltk.word_tokenize(text)
 
     # assign POS tags to the words in the text
-    if os.getcwd not in nltk.data.path:
+    if os.getcwd() not in nltk.data.path:
         nltk.data.path.append(os.getcwd())
     tagged = nltk.pos_tag(word_tokens)
     textlist = [x[0] for x in tagged]
@@ -81,13 +81,17 @@ def extract_key_phrases(text, top_n=0, tags=['NN', 'JJ', 'NNP']):
     tagged = _filter_for_tags(tagged, tags)
     tagged = _normalize(tagged)
 
-    unique_word_set = _unique_everseen([x[0] for x in tagged])
+    unique_word_set = _unique_everseen(tagged, key=lambda x: x[0])
     word_set_list = list(unique_word_set)
+
+    tag_lookup_table = {}
+    for word, tag in word_set_list:
+        tag_lookup_table[word] = tag
 
     # this will be used to determine adjacent words in order to construct
     # keyphrases with two words
 
-    graph = _build_graph(word_set_list)
+    graph = _build_graph([x[0] for x in word_set_list])
 
     # pageRank - initial value of 1.0, error tolerance of 0,0001,
     calculated_page_rank = nx.pagerank(graph, weight='weight')
@@ -122,13 +126,21 @@ def extract_key_phrases(text, top_n=0, tags=['NN', 'JJ', 'NNP']):
         else:
             i += 1
     top_n = len(modified_key_phrases) if top_n == 0 else top_n
-    return list(modified_key_phrases)[0: top_n]
-
+    modified_key_phrases = list(modified_key_phrases)[0: top_n]
+    tagged_keyphrases = []
+    for kw in modified_key_phrases:
+        try:
+            tagged_keyphrases.append((kw, tag_lookup_table[kw]))
+        except Exception:
+            tagged_keyphrases.append((kw, 'NNP'))
+    return tagged_keyphrases
 
 def extract_sentences(text, summary_length=100, clean_sentences=True, language='english'):
     """Return a paragraph formatted summary of the source text.
     :param text: A string.
     """
+    if os.getcwd() not in nltk.data.path:
+        nltk.data.path.append(os.getcwd())
     sent_detector = nltk.data.load('tokenizers/punkt/'+language+'.pickle')
     sentence_tokens = sent_detector.tokenize(text.strip())
     graph = _build_graph(sentence_tokens)

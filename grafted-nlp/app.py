@@ -1,6 +1,7 @@
 import json
-from trtr import *
 import logging
+from trtr import *
+from wiki_lookup import *
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -9,9 +10,6 @@ def handler(event, context):
         req = json.loads(event['body'])
     else:
         req = event
-    logger.info("req ==================")
-    logger.info(req)
-    logger.info(type(req))
     if 'selectedTypes' not in req.keys():
         return {
             "statusCode": 400,
@@ -30,9 +28,11 @@ def handler(event, context):
         }
     resp = {}
     if 'keywords' in req['selectedTypes']:
-        resp['keywords'] = extract_key_phrases(req["doc"])
+        kws = extract_key_phrases(req["doc"])
+        tagged_explained_kws = getIntroFromWiki(kws)
+        resp['keywords'] = [{'header':kw, 'subheader':tag, 'content':info} for kw, tag, info in tagged_explained_kws]
     if 'summary' in req['selectedTypes']:
-        resp["summary"] = extract_sentences(req["doc"])
+        resp["summary"] = [extract_sentences(req["doc"])]
     return {
         "statusCode": 200,
         "headers": {

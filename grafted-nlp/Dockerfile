@@ -2,6 +2,7 @@ FROM public.ecr.aws/lambda/python:3.8
 
 COPY app.py ${LAMBDA_TASK_ROOT}
 COPY trtr.py ${LAMBDA_TASK_ROOT}
+COPY wiki_lookup.py ${LAMBDA_TASK_ROOT}
 COPY nltk_data/ ${LAMBDA_TASK_ROOT}
 
 COPY requirements.txt  .
