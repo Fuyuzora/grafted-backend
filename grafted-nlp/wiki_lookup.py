@@ -9,11 +9,17 @@ def getIntroFromWiki(kws):
         try:
             info = wikipedia.summary(kw[0], sentences=2, auto_suggest=False)
         except wikipedia.exceptions.DisambiguationError as e:
-            info = wikipedia.summary(e.options[0], sentences=2, auto_suggest=False)
-            logger.info('Redirected to %s'%e.options[0])
+            try:
+                info = wikipedia.summary(e.options[1], sentences=2, auto_suggest=False)
+                info += ' (First disambiguation option selected)'
+                logger.info('Redirected to %s'%e.options[1])
+            except Exception as e:
+                info = 'No disambiguation options available'
         except wikipedia.exceptions.PageError as e:
             info = 'Page not found on wiki'
-        except Exception as e:
-            info = 'Wiki errpr'
+        except Exception as e3:
+            info = 'Wiki error'
         explained_kws.append(kw + (info, ))
     return explained_kws
+
+print(getIntroFromWiki([("specific", 'nn')]))

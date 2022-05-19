@@ -14,7 +14,8 @@ def handler(event, context):
         return {
             "statusCode": 400,
             "headers": {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Access-Control-Allow-Origin': '*'
             },
             "body": json.dumps({'error':'selected types not found'})
         }
@@ -22,13 +23,14 @@ def handler(event, context):
         return {
             "statusCode": 400,
             "headers": {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Access-Control-Allow-Origin': '*'
             },
             "body": json.dumps({'error':'content not found'})
         }
     resp = {}
     if 'keywords' in req['selectedTypes']:
-        kws = extract_key_phrases(req["doc"])
+        kws = extract_key_phrases(req["doc"], top_n=5)
         tagged_explained_kws = getIntroFromWiki(kws)
         resp['keywords'] = [{'header':kw, 'subheader':tag, 'content':info} for kw, tag, info in tagged_explained_kws]
     if 'summary' in req['selectedTypes']:
@@ -37,7 +39,7 @@ def handler(event, context):
         "statusCode": 200,
         "headers": {
             "Content-Type": "application/json",
-            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Headers': '*',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS,POST'
         },
